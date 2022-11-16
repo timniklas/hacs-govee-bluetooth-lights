@@ -27,9 +27,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     #bluetooth setup
     ble_device = bluetooth.async_ble_device_from_address(hass, light.address.upper(), True)
     async with BleakClient(ble_device) as client:
-        await sendBluetoothData(client, LedCommand.POWER, [0x1])
-
-    async_add_entities([GoveeBluetoothLight(light)])
+        async_add_entities([GoveeBluetoothLight(light, client)])
 
 async def sendBluetoothData(client, cmd, payload):
     if not isinstance(cmd, int):
@@ -57,11 +55,11 @@ async def sendBluetoothData(client, cmd, payload):
 class GoveeBluetoothLight(LightEntity):
     """Representation of an Awesome Light."""
 
-    def __init__(self, light) -> None:
+    def __init__(self, light, client) -> None:
         """Initialize an bluetooth light."""
         self._name = "GOVEE Light"
-        self._state = None
         self._mac = light.address
+        self._client = client
 
     @property
     def name(self) -> str:
@@ -73,22 +71,11 @@ class GoveeBluetoothLight(LightEntity):
         """Return a unique, Home Assistant friendly identifier for this entity."""
         return self._mac.replace(":", "")
 
-    @property
-    def is_on(self) -> bool | None:
-        """Return true if light is on."""
-        return self._state
-
     def turn_on(self, **kwargs) -> None:
-        """Instruct the light to turn on.
-
-        You can skip the brightness part if your light does not support
-        brightness control.
-        """
-        self._state = True
+        sendBluetoothData(self._client, LedCommand.POWER, [0x1])
 
     def turn_off(self, **kwargs) -> None:
-        """Instruct the light to turn off."""
-        self._state = False
+        sendBluetoothData(self._client, LedCommand.POWER, [0x0])
 
     def update(self) -> None:
         """Fetch new state data for this light.
