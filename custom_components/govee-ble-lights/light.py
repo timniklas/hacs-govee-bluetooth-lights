@@ -27,8 +27,9 @@ class GoveeBluetoothLight(LightEntity):
     def __init__(self, light) -> None:
         """Initialize an bluetooth light."""
         self._name = "GOVEE Light"
-        self._state = True
+        self._state = None
         self._mac = light.address
+        self._led = BluetoothLED(light.address)
 
     @property
     def name(self) -> str:
@@ -51,9 +52,13 @@ class GoveeBluetoothLight(LightEntity):
         You can skip the brightness part if your light does not support
         brightness control.
         """
+        self._led.set_state(True)
+        self._state = True
 
     def turn_off(self, **kwargs) -> None:
         """Instruct the light to turn off."""
+        self._led.set_state(False)
+        self._state = False
 
     def update(self) -> None:
         """Fetch new state data for this light.
