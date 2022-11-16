@@ -1,5 +1,8 @@
 """Platform for light integration."""
 
+import logging
+_LOGGER = logging.getLogger(__name__)
+
 # Import the device class from the component that you want to support
 import homeassistant.helpers.config_validation as cv
 from homeassistant.components.light import (LightEntity)
@@ -12,6 +15,7 @@ from .const import DOMAIN
 async def async_setup_entry(hass, config_entry, async_add_entities) -> None:
     """Set up the Govee Light ."""
     light = hass.data[DOMAIN][config_entry.entry_id]
+    _LOGGER.error("## setting up")
     new_devices = []
     new_devices.append(GoveeBluetoothLight(light))
     async_add_entities(new_devices)
@@ -31,6 +35,11 @@ class GoveeBluetoothLight(LightEntity):
     def device_info(self):
         """Return information to link this entity with the correct device."""
         return {"identifiers": {(DOMAIN, self._address)}}
+
+    @property
+    def available(self) -> bool:
+        """Return True if roller and hub is available."""
+        return True
 
     @property
     def name(self) -> str:
