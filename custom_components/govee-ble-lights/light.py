@@ -17,9 +17,7 @@ from .const import DOMAIN
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Add sensors for passed config_entry in HA."""
     light = hass.data[DOMAIN][config_entry.entry_id]
-    new_devices = []
-    new_devices.append(GoveeBluetoothLight(light))
-    async_add_entities(new_devices)
+    async_add_entities([GoveeBluetoothLight(light)])
 
 class GoveeBluetoothLight(LightEntity):
     """Representation of an Awesome Light."""
@@ -28,15 +26,17 @@ class GoveeBluetoothLight(LightEntity):
         """Initialize an bluetooth light."""
         self._name = "Light Name"
         self._state = True
-        self._address = light.address
+        self._mac = light.address
 
     @property
-    def device_info(self):
-        """Information about this entity/device."""
-        return {
-            "name": self._name,
-            "manufacturer": "GOVEE",
-        }
+    def name(self) -> str:
+        """Return the name of the switch."""
+        return self._name
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique, Home Assistant friendly identifier for this entity."""
+        return self._mac.replace(":", "")
 
     @property
     def is_on(self) -> bool | None:
