@@ -35,11 +35,6 @@ class GoveeBluetoothLight(LightEntity):
         self._address = light.address
 
     @property
-    def available(self) -> bool:
-        """Return True if roller and hub is available."""
-        return True
-
-    @property
     def name(self) -> str:
         """Return the display name of this light."""
         return self._name
