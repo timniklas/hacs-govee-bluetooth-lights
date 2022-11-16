@@ -25,6 +25,7 @@ class GoveeBluetoothLight(LightEntity):
         self._mac = light.address
         """self._led = BluetoothLED(light.address)"""
         adapter = pygatt.BGAPIBackend()
+        adapter.start()
         device = adapter.connect(light.address)
 
     @property
