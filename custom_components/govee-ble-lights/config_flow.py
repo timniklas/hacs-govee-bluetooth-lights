@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from typing import Any
 
+import voluptuous as vol
+
 from homeassistant.components.bluetooth import (
     BluetoothServiceInfoBleak,
     async_discovered_service_info,
@@ -11,16 +13,18 @@ from homeassistant.config_entries import ConfigFlow
 from homeassistant.const import CONF_ADDRESS
 from homeassistant.data_entry_flow import FlowResult
 
+from .const import DOMAIN
 
-class GoveeConfigFlow(ConfigFlow):
+
+class GoveeConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for govee."""
 
     VERSION = 1
 
     def __init__(self) -> None:
         """Initialize the config flow."""
-        self._discovery_info: BluetoothServiceInfoBleak | None = None
-        self._discovered_device: DeviceData | None = None
+        self._discovery_info: None = None
+        self._discovered_device: None = None
         self._discovered_devices: dict[str, str] = {}
 
     async def async_step_bluetooth(
@@ -29,22 +33,16 @@ class GoveeConfigFlow(ConfigFlow):
         """Handle the bluetooth discovery step."""
         await self.async_set_unique_id(discovery_info.address)
         self._abort_if_unique_id_configured()
-        device = DeviceData()
-        if not device.supported(discovery_info):
-            return self.async_abort(reason="not_supported")
         self._discovery_info = discovery_info
-        self._discovered_device = device
         return await self.async_step_bluetooth_confirm()
 
     async def async_step_bluetooth_confirm(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
         """Confirm discovery."""
-        assert self._discovered_device is not None
-        device = self._discovered_device
         assert self._discovery_info is not None
         discovery_info = self._discovery_info
-        title = device.title or device.get_device_name() or discovery_info.name
+        title = discovery_info.name
         if user_input is not None:
             return self.async_create_entry(title=title, data={})
 
@@ -72,11 +70,7 @@ class GoveeConfigFlow(ConfigFlow):
             address = discovery_info.address
             if address in current_addresses or address in self._discovered_devices:
                 continue
-            device = DeviceData()
-            if device.supported(discovery_info):
-                self._discovered_devices[address] = (
-                    device.title or device.get_device_name() or discovery_info.name
-                )
+            self._discovered_devices[address] = (discovery_info.name)
 
         if not self._discovered_devices:
             return self.async_abort(reason="no_devices_found")
