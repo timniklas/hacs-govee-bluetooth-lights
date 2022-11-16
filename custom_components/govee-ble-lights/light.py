@@ -5,14 +5,8 @@ from typing import Any
 import logging
 _LOGGER = logging.getLogger(__name__)
 
-from govee_btled import BluetoothLED
-
-# Import the device class from the component that you want to support
-import homeassistant.helpers.config_validation as cv
-from homeassistant.components.light import (LightEntity)
-from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
+import pygatt
+from homeassistant.components.light import LightEntity
 
 from .const import DOMAIN
 
@@ -29,7 +23,9 @@ class GoveeBluetoothLight(LightEntity):
         self._name = "GOVEE Light"
         self._state = None
         self._mac = light.address
-        self._led = BluetoothLED(light.address)
+        """self._led = BluetoothLED(light.address)"""
+        adapter = pygatt.BGAPIBackend()
+        device = adapter.connect(light.address)
 
     @property
     def name(self) -> str:
@@ -52,12 +48,10 @@ class GoveeBluetoothLight(LightEntity):
         You can skip the brightness part if your light does not support
         brightness control.
         """
-        self._led.set_state(True)
         self._state = True
 
     def turn_off(self, **kwargs) -> None:
         """Instruct the light to turn off."""
-        self._led.set_state(False)
         self._state = False
 
     def update(self) -> None:
