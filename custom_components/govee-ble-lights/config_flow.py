@@ -1,4 +1,3 @@
-"""Config flow for govee ble integration."""
 from __future__ import annotations
 
 from typing import Any
@@ -17,8 +16,6 @@ from .const import DOMAIN
 
 
 class GoveeConfigFlow(ConfigFlow, domain=DOMAIN):
-    """Handle a config flow for govee."""
-
     VERSION = 1
 
     def __init__(self) -> None:

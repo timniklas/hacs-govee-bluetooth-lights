@@ -1,4 +1,3 @@
-"""Platform for light integration."""
 from __future__ import annotations
 from typing import Any
 
@@ -9,7 +8,7 @@ from enum import IntEnum
 
 from bleak import BleakClient
 from homeassistant.components import bluetooth
-from homeassistant.components.light import LightEntity
+from homeassistant.components.light import (ATTR_BRIGHTNESS, ATTR_RGB_COLOR, ColorMode, LightEntity)
 
 from .const import DOMAIN
 
@@ -21,27 +20,36 @@ class LedCommand(IntEnum):
     BRIGHTNESS = 0x04
     COLOR      = 0x05
 
+class LedMode(IntEnum):
+    """
+    The mode in which a color change happens in.
+    
+    Currently only manual is supported.
+    """
+    MANUAL     = 0x02
+    MICROPHONE = 0x06
+    SCENES     = 0x05
+
 async def async_setup_entry(hass, config_entry, async_add_entities):
-    """Add sensors for passed config_entry in HA."""
     light = hass.data[DOMAIN][config_entry.entry_id]
     #bluetooth setup
     ble_device = bluetooth.async_ble_device_from_address(hass, light.address.upper(), True)
     async_add_entities([GoveeBluetoothLight(light, ble_device)])
 
 class GoveeBluetoothLight(LightEntity):
-    """Representation of an Awesome Light."""
+    _attr_color_mode = ColorMode.RGB
+    _attr_supported_color_modes = {ColorMode.RGB}
 
     def __init__(self, light, ble_device) -> None:
         """Initialize an bluetooth light."""
-        self._name = "GOVEE Light"
         self._mac = light.address
-        self._state = None
         self._ble_device = ble_device
+        self._state = None
 
     @property
     def name(self) -> str:
         """Return the name of the switch."""
-        return self._name
+        return "GOVEE Light"
 
     @property
     def unique_id(self) -> str:
@@ -56,6 +64,15 @@ class GoveeBluetoothLight(LightEntity):
     async def async_turn_on(self, **kwargs) -> None:
         await self._sendBluetoothData(LedCommand.POWER, [0x1])
         self._state = True
+
+        if ATTR_BRIGHTNESS in kwargs:
+            brightness = kwargs.get(ATTR_BRIGHTNESS, 255)
+            await self._sendBluetoothData(LedCommand.BRIGHTNESS, [brightness])
+            self._brightness = brightness
+
+        if ATTR_RGB_COLOR in kwargs:
+            red, green, blue = kwargs.get(ATTR_RGB_COLOR)
+            await self._sendBluetoothData(LedCommand.COLOR, [LedMode.MANUAL, red, green, blue])
 
     async def async_turn_off(self, **kwargs) -> None:
         await self._sendBluetoothData(LedCommand.POWER, [0x0])

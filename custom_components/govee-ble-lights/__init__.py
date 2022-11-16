@@ -1,4 +1,3 @@
-"""The Govee Bluetooth BLE integration."""
 from __future__ import annotations
 
 from homeassistant.components import bluetooth
