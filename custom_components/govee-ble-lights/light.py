@@ -23,6 +23,13 @@ def setup_platform(
     add_entities(GoveeBluetoothLight())
 
 
+async def async_setup_entry(
+    async_add_entities: AddEntitiesCallback,
+) -> None:
+    """Set up the Govee Light ."""
+    async_add_entities(GoveeBluetoothLight())
+
+
 class GoveeBluetoothLight():
     """Representation of an Awesome Light."""
 
