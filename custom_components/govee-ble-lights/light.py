@@ -48,10 +48,10 @@ class GoveeBluetoothLight(LightEntity):
         return self._mac.replace(":", "")
 
     def turn_on(self, **kwargs) -> None:
-        self._sendBluetoothData(self._client, LedCommand.POWER, [0x1])
+        self._sendBluetoothData(LedCommand.POWER, [0x1])
 
     def turn_off(self, **kwargs) -> None:
-        self._sendBluetoothData(self._client, LedCommand.POWER, [0x0])
+        self._sendBluetoothData(LedCommand.POWER, [0x0])
 
     def update(self) -> None:
         """Fetch new state data for this light.
