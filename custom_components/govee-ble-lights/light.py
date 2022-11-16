@@ -35,9 +35,8 @@ class GoveeBluetoothLight(LightEntity):
         """Initialize an bluetooth light."""
         self._name = "GOVEE Light"
         self._mac = light.address
-        self._client = BleakClient(ble_device)
-        _LOGGER.error(ble_device)
-        self._sendBluetoothData(LedCommand.POWER, [0x1])
+        self._state = None
+        self._ble_device = ble_device
 
     @property
     def name(self) -> str:
@@ -49,11 +48,18 @@ class GoveeBluetoothLight(LightEntity):
         """Return a unique, Home Assistant friendly identifier for this entity."""
         return self._mac.replace(":", "")
 
-    def turn_on(self, **kwargs) -> None:
-        self._sendBluetoothData(LedCommand.POWER, [0x1])
+    @property
+    def is_on(self) -> bool | None:
+        """Return true if light is on."""
+        return self._state
 
-    def turn_off(self, **kwargs) -> None:
-        self._sendBluetoothData(LedCommand.POWER, [0x0])
+    async def async_turn_on(self, **kwargs) -> None:
+        await self._sendBluetoothData(LedCommand.POWER, [0x1])
+        self._state = True
+
+    async def async_turn_off(self, **kwargs) -> None:
+        await self._sendBluetoothData(LedCommand.POWER, [0x0])
+        self._state = False
 
     def update(self) -> None:
         """Fetch new state data for this light.
@@ -61,7 +67,7 @@ class GoveeBluetoothLight(LightEntity):
         This is the only method that should fetch new data for Home Assistant.
         """
 
-    def _sendBluetoothData(self, cmd, payload):
+    async def _sendBluetoothData(self, cmd, payload):
         if not isinstance(cmd, int):
             raise ValueError('Invalid command')
         if not isinstance(payload, bytes) and not (isinstance(payload, list) and all(isinstance(x, int) for x in payload)):
@@ -82,4 +88,5 @@ class GoveeBluetoothLight(LightEntity):
             checksum ^= b
         
         frame += bytes([checksum & 0xFF])
-        self._client.write_gatt_char(UUID_CONTROL_CHARACTERISTIC, frame, False)
+        async with BleakClient(self._ble_device) as client:
+            await client.write_gatt_char(UUID_CONTROL_CHARACTERISTIC, frame, False)
