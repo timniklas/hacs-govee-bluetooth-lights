@@ -5,7 +5,6 @@ from typing import Any
 import logging
 _LOGGER = logging.getLogger(__name__)
 
-import pygatt
 from homeassistant.components.light import LightEntity
 
 from .const import DOMAIN
@@ -23,10 +22,6 @@ class GoveeBluetoothLight(LightEntity):
         self._name = "GOVEE Light"
         self._state = None
         self._mac = light.address
-        """self._led = BluetoothLED(light.address)"""
-        adapter = pygatt.BGAPIBackend()
-        adapter.start()
-        device = adapter.connect(light.address)
 
     @property
     def name(self) -> str:

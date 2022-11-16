@@ -1,10 +1,10 @@
 """The Govee Bluetooth BLE integration."""
 from __future__ import annotations
 
-import logging
-
+from homeassistant.components import bluetooth
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ConfigEntryNotReady
 
 from .const import DOMAIN
 
@@ -20,6 +20,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Govee BLE device from a config entry."""
     address = entry.unique_id
     assert address is not None
+    ble_device = bluetooth.async_ble_device_from_address(hass, address.upper(), True)
+    if not ble_device:
+        raise ConfigEntryNotReady(
+            f"Could not find LED BLE device with address {address}"
+        )
+
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = Hub(hass, address=address)
     hass.config_entries.async_setup_platforms(entry, PLATFORMS)
     return True
