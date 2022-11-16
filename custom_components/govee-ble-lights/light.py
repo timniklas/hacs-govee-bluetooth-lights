@@ -27,7 +27,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     #bluetooth setup
     ble_device = bluetooth.async_ble_device_from_address(hass, light.address.upper(), True)
     async with BleakClient(ble_device) as client:
-        await sendBluetoothData(client, LedCommand.POWER, 0x1)
+        await sendBluetoothData(client, LedCommand.POWER, [0x1])
 
     async_add_entities([GoveeBluetoothLight(light)])
 
