@@ -10,14 +10,13 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
-async def async_setup_entry(
-    async_add_entities: AddEntitiesCallback,
-) -> None:
+async def async_setup_entry(hass, config_entry, async_add_entities) -> None:
     """Set up the Govee Light ."""
-    async_add_entities(GoveeBluetoothLight())
+    light = hass.data[DOMAIN][config_entry.entry_id]
+    async_add_entities(GoveeBluetoothLight(light))
 
 
-class GoveeBluetoothLight():
+class GoveeBluetoothLight(LightEntity):
     """Representation of an Awesome Light."""
 
     def __init__(self, light) -> None:
@@ -25,6 +24,7 @@ class GoveeBluetoothLight():
         self._name = "Light Name"
         self._state = None
         self._brightness = None
+        self._address = light._address
 
     @property
     def name(self) -> str:
