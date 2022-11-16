@@ -12,18 +12,12 @@ from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
 from .const import DOMAIN
 
-def setup_platform(
-    hass: HomeAssistant,
-    config: ConfigType,
-    add_entities: AddEntitiesCallback,
-    discovery_info: DiscoveryInfoType | None = None
-) -> None:
-    """Set up the Awesome Light platform."""
-    # Add devices
-    light = hass.data[DOMAIN][config.entry_id]
+async def async_setup_entry(hass, config_entry, async_add_entities):
+    """Add sensors for passed config_entry in HA."""
+    light = hass.data[DOMAIN][config_entry.entry_id]
     new_devices = []
     new_devices.append(GoveeBluetoothLight(light))
-    add_entities(new_devices)
+    async_add_entities(new_devices)
 
 class GoveeBluetoothLight(LightEntity):
     """Representation of an Awesome Light."""
@@ -35,9 +29,12 @@ class GoveeBluetoothLight(LightEntity):
         self._address = light.address
 
     @property
-    def name(self) -> str:
-        """Return the display name of this light."""
-        return self._name
+    def device_info(self) -> DeviceInfo:
+        """Information about this entity/device."""
+        return {
+            "name": self._name,
+            "manufacturer": "GOVEE",
+        }
 
     @property
     def is_on(self) -> bool | None:
