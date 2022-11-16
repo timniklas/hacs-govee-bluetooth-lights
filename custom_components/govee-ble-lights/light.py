@@ -5,6 +5,8 @@ from typing import Any
 import logging
 _LOGGER = logging.getLogger(__name__)
 
+from enum import IntEnum
+
 from bleak import BleakClient
 from homeassistant.components import bluetooth
 from homeassistant.components.light import LightEntity
