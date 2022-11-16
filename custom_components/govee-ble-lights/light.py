@@ -45,6 +45,8 @@ class GoveeBluetoothLight(LightEntity):
         self._mac = light.address
         self._ble_device = ble_device
         self._state = None
+        self._brightness = None
+        self._rgb_color = None
 
     @property
     def name(self) -> str:
@@ -55,6 +57,14 @@ class GoveeBluetoothLight(LightEntity):
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
         return self._mac.replace(":", "")
+
+    @property
+    def brightness(self):
+        return self._brightness
+    
+    @property
+    def rgb_color(self):
+        return self._rgb_color
 
     @property
     def is_on(self) -> bool | None:
@@ -73,6 +83,7 @@ class GoveeBluetoothLight(LightEntity):
         if ATTR_RGB_COLOR in kwargs:
             red, green, blue = kwargs.get(ATTR_RGB_COLOR)
             await self._sendBluetoothData(LedCommand.COLOR, [LedMode.MANUAL, red, green, blue])
+            self._rgb_color = kwargs.get(ATTR_RGB_COLOR)
 
     async def async_turn_off(self, **kwargs) -> None:
         await self._sendBluetoothData(LedCommand.POWER, [0x0])
