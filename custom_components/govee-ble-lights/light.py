@@ -44,14 +44,14 @@ class GoveeBluetoothLight(LightEntity):
         """Return true if light is on."""
         return self._state
 
-    def turn_on(self, **kwargs: Any) -> None:
+    def turn_on(self, **kwargs) -> None:
         """Instruct the light to turn on.
 
         You can skip the brightness part if your light does not support
         brightness control.
         """
 
-    def turn_off(self, **kwargs: Any) -> None:
+    def turn_off(self, **kwargs) -> None:
         """Instruct the light to turn off."""
 
     def update(self) -> None:
