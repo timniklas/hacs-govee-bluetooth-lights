@@ -14,8 +14,6 @@ PLATFORMS: list[Platform] = [Platform.SENSORS]
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Govee BLE device from a config entry."""
-    address = entry.unique_id
-    assert address is not None
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
 
