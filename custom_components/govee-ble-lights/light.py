@@ -11,16 +11,40 @@ from homeassistant.components.light import LightEntity
 
 from .const import DOMAIN
 
+UUID_CONTROL_CHARACTERISTIC = '00010203-0405-0607-0809-0a0b0c0d2b11'
+
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Add sensors for passed config_entry in HA."""
     light = hass.data[DOMAIN][config_entry.entry_id]
     #bluetooth setup
     ble_device = bluetooth.async_ble_device_from_address(hass, light.address.upper(), True)
     async with BleakClient(ble_device) as client:
-        model_number = await client.read_gatt_char("00002a24-0000-1000-8000-00805f9b34fb")
-        _LOGGER.error("Model Number: {0}".format("".join(map(chr, model_number))))
+        await sendBluetoothData(client)
 
     async_add_entities([GoveeBluetoothLight(light)])
+
+async def sendBluetoothData(client, cmd, payload):
+    if not isinstance(cmd, int):
+        raise ValueError('Invalid command')
+    if not isinstance(payload, bytes) and not (isinstance(payload, list) and all(isinstance(x, int) for x in payload)):
+        raise ValueError('Invalid payload')
+    if len(payload) > 17:
+        raise ValueError('Payload too long')
+
+    cmd = cmd & 0xFF
+    payload = bytes(payload)
+
+    frame = bytes([0x33, cmd]) + bytes(payload)
+    # pad frame data to 19 bytes (plus checksum)
+    frame += bytes([0] * (19 - len(frame)))
+    
+    # The checksum is calculated by XORing all data bytes
+    checksum = 0
+    for b in frame:
+        checksum ^= b
+    
+    frame += bytes([checksum & 0xFF])
+    await client.write_gatt_char(UUID_CONTROL_CHARACTERISTIC, frame)
 
 class GoveeBluetoothLight(LightEntity):
     """Representation of an Awesome Light."""
