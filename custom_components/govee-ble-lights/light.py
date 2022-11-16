@@ -88,5 +88,5 @@ class GoveeBluetoothLight(LightEntity):
             checksum ^= b
         
         frame += bytes([checksum & 0xFF])
-        async with BleakClient(self._ble_device) as client:
-            await client.write_gatt_char(UUID_CONTROL_CHARACTERISTIC, frame, False)
+        client = BleakClient(self._ble_device)
+        await client.write_gatt_char(UUID_CONTROL_CHARACTERISTIC, frame, False)
