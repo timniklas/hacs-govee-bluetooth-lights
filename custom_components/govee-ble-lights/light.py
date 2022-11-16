@@ -28,6 +28,11 @@ class GoveeBluetoothLight(LightEntity):
         self._address = light.address
 
     @property
+    def device_info(self):
+        """Return information to link this entity with the correct device."""
+        return {"identifiers": {(DOMAIN, self._address)}}
+
+    @property
     def name(self) -> str:
         """Return the display name of this light."""
         return self._name
