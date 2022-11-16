@@ -11,10 +11,9 @@ from .const import DOMAIN
 PLATFORMS: list[str] = ["light"]
 
 class Hub:
-    manufacturer = "Demonstration Corp"
     def __init__(self, hass: HomeAssistant, address: str) -> None:
         """Init dummy hub."""
-        self._address = address
+        self.address = address
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

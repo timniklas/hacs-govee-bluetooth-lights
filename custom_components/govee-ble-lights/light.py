@@ -1,7 +1,4 @@
 """Platform for light integration."""
-from __future__ import annotations
-
-import logging
 
 # Import the device class from the component that you want to support
 import homeassistant.helpers.config_validation as cv
@@ -9,6 +6,8 @@ from homeassistant.components.light import (LightEntity)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
+
+from .const import DOMAIN
 
 async def async_setup_entry(hass, config_entry, async_add_entities) -> None:
     """Set up the Govee Light ."""
