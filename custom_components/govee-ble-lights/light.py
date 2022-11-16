@@ -5,6 +5,8 @@ from typing import Any
 import logging
 _LOGGER = logging.getLogger(__name__)
 
+from govee_btled import BluetoothLED
+
 # Import the device class from the component that you want to support
 import homeassistant.helpers.config_validation as cv
 from homeassistant.components.light import (LightEntity)
