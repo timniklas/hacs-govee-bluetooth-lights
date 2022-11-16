@@ -17,7 +17,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     #bluetooth setup
     ble_device = await bluetooth.async_ble_device_from_address(hass, light.address.upper(), True)
     async with BleakClient(ble_device) as client:
-        model_number = await ble_device.read_gatt_char("00002a24-0000-1000-8000-00805f9b34fb")
+        model_number = await client.read_gatt_char("00002a24-0000-1000-8000-00805f9b34fb")
         _LOGGER.error("Model Number: {0}".format("".join(map(chr, model_number))))
 
     async_add_entities([GoveeBluetoothLight(light)])
