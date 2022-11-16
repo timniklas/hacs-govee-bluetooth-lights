@@ -12,7 +12,7 @@ from homeassistant.const import CONF_ADDRESS
 from homeassistant.data_entry_flow import FlowResult
 
 
-class GoveeConfigFlow(ConfigFlow, domain=DOMAIN):
+class GoveeConfigFlow(ConfigFlow):
     """Handle a config flow for govee."""
 
     VERSION = 1
