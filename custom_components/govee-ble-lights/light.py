@@ -89,4 +89,6 @@ class GoveeBluetoothLight(LightEntity):
         
         frame += bytes([checksum & 0xFF])
         client = BleakClient(self._ble_device)
+        await client.connect()
+        _LOGGER.error("#connected")
         await client.write_gatt_char(UUID_CONTROL_CHARACTERISTIC, frame, False)
