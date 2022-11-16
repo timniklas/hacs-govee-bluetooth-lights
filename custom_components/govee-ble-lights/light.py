@@ -15,14 +15,6 @@ from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 _LOGGER = logging.getLogger(__name__)
 
 
-def setup_platform(
-    add_entities: AddEntitiesCallback
-) -> None:
-    """Set up the Awesome Light platform."""
-    # Add devices
-    add_entities(GoveeBluetoothLight())
-
-
 async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
