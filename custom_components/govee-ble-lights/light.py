@@ -13,13 +13,19 @@ from .const import DOMAIN
 
 UUID_CONTROL_CHARACTERISTIC = '00010203-0405-0607-0809-0a0b0c0d2b11'
 
+class LedCommand(IntEnum):
+    """ A control command packet's type. """
+    POWER      = 0x01
+    BRIGHTNESS = 0x04
+    COLOR      = 0x05
+
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Add sensors for passed config_entry in HA."""
     light = hass.data[DOMAIN][config_entry.entry_id]
     #bluetooth setup
     ble_device = bluetooth.async_ble_device_from_address(hass, light.address.upper(), True)
     async with BleakClient(ble_device) as client:
-        await sendBluetoothData(client)
+        await sendBluetoothData(client, LedCommand.POWER, 0x1)
 
     async_add_entities([GoveeBluetoothLight(light)])
 
