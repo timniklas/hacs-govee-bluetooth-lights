@@ -12,9 +12,18 @@ from .const import DOMAIN
 
 PLATFORMS: list[str] = ["light"]
 
+class Hub:
+    manufacturer = "Demonstration Corp"
+    def __init__(self, hass: HomeAssistant, address: str) -> None:
+        """Init dummy hub."""
+        self._address = address
+
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Govee BLE device from a config entry."""
-    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = hub.Hub(hass, entry.data["host"])
+    address = entry.unique_id
+    assert address is not None
+    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = Hub(hass, address=address)
     await hass.config_entries.async_setup_platforms(entry, PLATFORMS)
     return True
 

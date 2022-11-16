@@ -10,15 +10,11 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
-def setup_platform(
-    hass: HomeAssistant,
-    config: ConfigType,
-    add_entities: AddEntitiesCallback,
-    discovery_info: DiscoveryInfoType | None = None
+async def async_setup_entry(
+    async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up the Awesome Light platform."""
-    # Add devices
-    add_entities(GoveeBluetoothLight())
+    """Set up the Govee Light ."""
+    async_add_entities(GoveeBluetoothLight())
 
 
 class GoveeBluetoothLight():
