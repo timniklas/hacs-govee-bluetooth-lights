@@ -1,4 +1,6 @@
 """Platform for light integration."""
+from __future__ import annotations
+from typing import Any
 
 import logging
 _LOGGER = logging.getLogger(__name__)
