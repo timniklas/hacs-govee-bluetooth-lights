@@ -23,7 +23,7 @@ class GoveeBluetoothLight(LightEntity):
         self._name = "Light Name"
         self._state = None
         self._brightness = None
-        self._address = light._address
+        self._address = light.address
 
     @property
     def name(self) -> str:
