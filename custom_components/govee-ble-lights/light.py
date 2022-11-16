@@ -26,40 +26,16 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     light = hass.data[DOMAIN][config_entry.entry_id]
     #bluetooth setup
     ble_device = bluetooth.async_ble_device_from_address(hass, light.address.upper(), True)
-    async with BleakClient(ble_device) as client:
-        async_add_entities([GoveeBluetoothLight(light, client)])
-
-async def sendBluetoothData(client, cmd, payload):
-    if not isinstance(cmd, int):
-        raise ValueError('Invalid command')
-    if not isinstance(payload, bytes) and not (isinstance(payload, list) and all(isinstance(x, int) for x in payload)):
-        raise ValueError('Invalid payload')
-    if len(payload) > 17:
-        raise ValueError('Payload too long')
-
-    cmd = cmd & 0xFF
-    payload = bytes(payload)
-
-    frame = bytes([0x33, cmd]) + bytes(payload)
-    # pad frame data to 19 bytes (plus checksum)
-    frame += bytes([0] * (19 - len(frame)))
-    
-    # The checksum is calculated by XORing all data bytes
-    checksum = 0
-    for b in frame:
-        checksum ^= b
-    
-    frame += bytes([checksum & 0xFF])
-    await client.write_gatt_char(UUID_CONTROL_CHARACTERISTIC, frame, False)
+    async_add_entities([GoveeBluetoothLight(light, ble_device)])
 
 class GoveeBluetoothLight(LightEntity):
     """Representation of an Awesome Light."""
 
-    def __init__(self, light, client) -> None:
+    def __init__(self, light, ble_device) -> None:
         """Initialize an bluetooth light."""
         self._name = "GOVEE Light"
         self._mac = light.address
-        self._client = client
+        self._client = BleakClient(ble_device)
 
     @property
     def name(self) -> str:
@@ -72,13 +48,36 @@ class GoveeBluetoothLight(LightEntity):
         return self._mac.replace(":", "")
 
     def turn_on(self, **kwargs) -> None:
-        sendBluetoothData(self._client, LedCommand.POWER, [0x1])
+        self._sendBluetoothData(self._client, LedCommand.POWER, [0x1])
 
     def turn_off(self, **kwargs) -> None:
-        sendBluetoothData(self._client, LedCommand.POWER, [0x0])
+        self._sendBluetoothData(self._client, LedCommand.POWER, [0x0])
 
     def update(self) -> None:
         """Fetch new state data for this light.
 
         This is the only method that should fetch new data for Home Assistant.
         """
+
+    def _sendBluetoothData(self, cmd, payload):
+        if not isinstance(cmd, int):
+            raise ValueError('Invalid command')
+        if not isinstance(payload, bytes) and not (isinstance(payload, list) and all(isinstance(x, int) for x in payload)):
+            raise ValueError('Invalid payload')
+        if len(payload) > 17:
+            raise ValueError('Payload too long')
+
+        cmd = cmd & 0xFF
+        payload = bytes(payload)
+
+        frame = bytes([0x33, cmd]) + bytes(payload)
+        # pad frame data to 19 bytes (plus checksum)
+        frame += bytes([0] * (19 - len(frame)))
+        
+        # The checksum is calculated by XORing all data bytes
+        checksum = 0
+        for b in frame:
+            checksum ^= b
+        
+        frame += bytes([checksum & 0xFF])
+        self._client.write_gatt_char(UUID_CONTROL_CHARACTERISTIC, frame, False)
