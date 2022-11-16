@@ -6,8 +6,6 @@ import logging
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
-from . import hub
-
 from .const import DOMAIN
 
 PLATFORMS: list[str] = ["light"]
