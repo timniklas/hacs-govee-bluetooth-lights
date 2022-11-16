@@ -12,7 +12,9 @@ from .const import DOMAIN
 async def async_setup_entry(hass, config_entry, async_add_entities) -> None:
     """Set up the Govee Light ."""
     light = hass.data[DOMAIN][config_entry.entry_id]
-    async_add_entities([GoveeBluetoothLight(light)])
+    new_devices = []
+    new_devices.append(GoveeBluetoothLight(light))
+    async_add_entities(new_devices)
 
 
 class GoveeBluetoothLight(LightEntity):
