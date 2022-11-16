@@ -50,7 +50,7 @@ async def sendBluetoothData(client, cmd, payload):
         checksum ^= b
     
     frame += bytes([checksum & 0xFF])
-    await client.write_gatt_char(UUID_CONTROL_CHARACTERISTIC, frame)
+    await client.write_gatt_char(UUID_CONTROL_CHARACTERISTIC, frame, False)
 
 class GoveeBluetoothLight(LightEntity):
     """Representation of an Awesome Light."""
