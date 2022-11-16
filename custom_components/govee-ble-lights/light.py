@@ -26,10 +26,8 @@ class GoveeBluetoothLight(LightEntity):
     def __init__(self, light) -> None:
         """Initialize an bluetooth light."""
         self._name = "Light Name"
-        self._state = None
-        self._brightness = None
+        self._state = True
         self._address = light.address
-        _LOGGER.error(light.address)
 
     @property
     def device_info(self):
@@ -45,15 +43,6 @@ class GoveeBluetoothLight(LightEntity):
     def name(self) -> str:
         """Return the display name of this light."""
         return self._name
-
-    @property
-    def brightness(self):
-        """Return the brightness of the light.
-
-        This method is optional. Removing it indicates to Home Assistant
-        that brightness is not supported for this light.
-        """
-        return self._brightness
 
     @property
     def is_on(self) -> bool | None:
