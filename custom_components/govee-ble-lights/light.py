@@ -36,6 +36,8 @@ class GoveeBluetoothLight(LightEntity):
         self._name = "GOVEE Light"
         self._mac = light.address
         self._client = BleakClient(ble_device)
+        _LOGGER.error(ble_device)
+        self._sendBluetoothData(LedCommand.POWER, [0x1])
 
     @property
     def name(self) -> str:
