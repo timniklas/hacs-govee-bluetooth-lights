@@ -5,6 +5,7 @@ import logging
 _LOGGER = logging.getLogger(__name__)
 
 from enum import IntEnum
+import time
 
 from bleak import BleakClient
 from homeassistant.components import bluetooth
@@ -28,7 +29,7 @@ class LedMode(IntEnum):
     """
     MANUAL     = 0x02
     MICROPHONE = 0x06
-    SCENES     = 0x05
+    SCENES     = 0x05 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
     light = hass.data[DOMAIN][config_entry.entry_id]
@@ -46,7 +47,6 @@ class GoveeBluetoothLight(LightEntity):
         self._ble_device = ble_device
         self._state = None
         self._brightness = None
-        self._rgb_color = None
 
     @property
     def name(self) -> str:
@@ -61,10 +61,6 @@ class GoveeBluetoothLight(LightEntity):
     @property
     def brightness(self):
         return self._brightness
-    
-    @property
-    def rgb_color(self):
-        return self._rgb_color
 
     @property
     def is_on(self) -> bool | None:
@@ -83,17 +79,29 @@ class GoveeBluetoothLight(LightEntity):
         if ATTR_RGB_COLOR in kwargs:
             red, green, blue = kwargs.get(ATTR_RGB_COLOR)
             await self._sendBluetoothData(LedCommand.COLOR, [LedMode.MANUAL, red, green, blue])
-            self._rgb_color = kwargs.get(ATTR_RGB_COLOR)
 
     async def async_turn_off(self, **kwargs) -> None:
         await self._sendBluetoothData(LedCommand.POWER, [0x0])
         self._state = False
 
-    def update(self) -> None:
-        """Fetch new state data for this light.
+    async def _connectBluetooth(self) -> BleakClient:
+        client = BleakClient(self._ble_device)
+        counter = 0
+        while True:
+            try:
+                await client.connect()
+                break
+            except Exception as err:
+                if "le-connection-abort-by-local" not in str(err):
+                    raise err
+                elif counter > 5:
+                    break
+                else:
+                    time.sleep(0.1)
+            finally:
+                counter = counter + 1
 
-        This is the only method that should fetch new data for Home Assistant.
-        """
+        return client
 
     async def _sendBluetoothData(self, cmd, payload):
         if not isinstance(cmd, int):
@@ -116,6 +124,5 @@ class GoveeBluetoothLight(LightEntity):
             checksum ^= b
         
         frame += bytes([checksum & 0xFF])
-        client = BleakClient(self._ble_device)
-        await client.connect()
+        client = await self._connectBluetooth()
         await client.write_gatt_char(UUID_CONTROL_CHARACTERISTIC, frame, False)
