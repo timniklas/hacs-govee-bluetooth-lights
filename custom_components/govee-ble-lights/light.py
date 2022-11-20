@@ -6,7 +6,7 @@ _LOGGER = logging.getLogger(__name__)
 
 from enum import IntEnum
 import time
-from bleak_retry_connector import bleak_retry_connector
+import bleak_retry_connector
 
 from bleak import BleakClient
 from homeassistant.components import bluetooth
@@ -86,10 +86,7 @@ class GoveeBluetoothLight(LightEntity):
         self._state = False
 
     async def _connectBluetooth(self) -> BleakClient:
-        client = BleakClient(self._ble_device)
-
-        establish_connection
-
+        client = await bleak_retry_connector.establish_connection(BleakClient, self._ble_device, self.unique_id)
         return client
 
     async def _sendBluetoothData(self, cmd, payload):
