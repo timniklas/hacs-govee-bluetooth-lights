@@ -6,6 +6,7 @@ _LOGGER = logging.getLogger(__name__)
 
 from enum import IntEnum
 import time
+from bleak_retry_connector import bleak_retry_connector
 
 from bleak import BleakClient
 from homeassistant.components import bluetooth
@@ -34,7 +35,7 @@ class LedMode(IntEnum):
 async def async_setup_entry(hass, config_entry, async_add_entities):
     light = hass.data[DOMAIN][config_entry.entry_id]
     #bluetooth setup
-    ble_device = bluetooth.async_ble_device_from_address(hass, light.address.upper(), True)
+    ble_device = bluetooth.async_ble_device_from_address(hass, light.address.upper(), False)
     async_add_entities([GoveeBluetoothLight(light, ble_device)])
 
 class GoveeBluetoothLight(LightEntity):
@@ -86,20 +87,8 @@ class GoveeBluetoothLight(LightEntity):
 
     async def _connectBluetooth(self) -> BleakClient:
         client = BleakClient(self._ble_device)
-        counter = 0
-        while True:
-            try:
-                await client.connect()
-                break
-            except Exception as err:
-                if "le-connection-abort-by-local" not in str(err):
-                    raise err
-                elif counter > 5:
-                    break
-                else:
-                    time.sleep(0.1)
-            finally:
-                counter = counter + 1
+
+        establish_connection
 
         return client
 
