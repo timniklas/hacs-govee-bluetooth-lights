@@ -10,9 +10,10 @@ from .const import DOMAIN
 PLATFORMS: list[str] = ["light"]
 
 class Hub:
-    def __init__(self, hass: HomeAssistant, address: str) -> None:
+    def __init__(self, hass: HomeAssistant, address: str, type: str) -> None:
         """Init dummy hub."""
         self.address = address
+        self.type = type
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -25,7 +26,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             f"Could not find LED BLE device with address {address}"
         )
 
-    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = Hub(hass, address=address)
+    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = Hub(hass, address, entry.data.get("type"))
     hass.config_entries.async_setup_platforms(entry, PLATFORMS)
     return True
 
