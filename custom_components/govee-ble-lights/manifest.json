@@ -4,10 +4,12 @@
     "bluetooth": [
         { "local_name": "ihoment_*", "connectable": false }
     ],
-    "codeowners": [],
+    "codeowners": ["@timniklask"],
+    "documentation": "https://github.com/timniklas/hacs-govee-bluetooth-lights/wiki",
+    "issue_tracker": "https://github.com/timniklas/hacs-govee-bluetooth-lights/issues",
     "requirements": ["bleak-retry-connector"],
     "dependencies": ["bluetooth"],
     "config_flow": true,
     "iot_class": "local_polling",
-    "version": "0.1.1"
+    "version": "0.2"
 }
