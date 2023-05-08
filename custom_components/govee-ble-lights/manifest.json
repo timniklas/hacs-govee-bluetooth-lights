@@ -1,5 +1,5 @@
 {
-    "domain": "govee_ble_lights",
+    "domain": "govee-ble-lights",
     "name": "GOVEE Bluetooth Lights",
     "bluetooth": [
         { "local_name": "ihoment_*", "connectable": false }
