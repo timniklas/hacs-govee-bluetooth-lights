@@ -59,7 +59,9 @@ class GoveeConfigFlow(ConfigFlow, domain=DOMAIN):
             await self.async_set_unique_id(address, raise_on_progress=False)
             self._abort_if_unique_id_configured()
             return self.async_create_entry(
-                title=self._discovered_devices[address], data={}
+                title=self._discovered_devices[address], data={
+                    "type": user_input["type"]
+                }
             )
 
         current_addresses = self._async_current_ids()
@@ -75,6 +77,9 @@ class GoveeConfigFlow(ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema(
-                {vol.Required(CONF_ADDRESS): vol.In(self._discovered_devices)}
+                {
+                    vol.Required("type"): vol.In(["Other", "H6053"]),
+                    vol.Required(CONF_ADDRESS): vol.In(self._discovered_devices)
+                }
             ),
         )

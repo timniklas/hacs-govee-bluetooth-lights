@@ -45,6 +45,7 @@ class GoveeBluetoothLight(LightEntity):
     def __init__(self, light, ble_device) -> None:
         """Initialize an bluetooth light."""
         self._mac = light.address
+        self._type = light.type
         self._ble_device = ble_device
         self._state = None
         self._brightness = None
@@ -74,12 +75,12 @@ class GoveeBluetoothLight(LightEntity):
 
         if ATTR_BRIGHTNESS in kwargs:
             brightness = kwargs.get(ATTR_BRIGHTNESS, 255)
-            await self._sendBluetoothData(LedCommand.BRIGHTNESS, [brightness])
             self._brightness = brightness
+            await self._sendBluetoothData(LedCommand.BRIGHTNESS, self._get_brightness_payload(brightness))
 
         if ATTR_RGB_COLOR in kwargs:
             red, green, blue = kwargs.get(ATTR_RGB_COLOR)
-            await self._sendBluetoothData(LedCommand.COLOR, [LedMode.MANUAL, red, green, blue])
+            await self._sendBluetoothData(LedCommand.COLOR, self._get_color_payload(red, green, blue))
 
     async def async_turn_off(self, **kwargs) -> None:
         await self._sendBluetoothData(LedCommand.POWER, [0x0])
@@ -112,3 +113,17 @@ class GoveeBluetoothLight(LightEntity):
         frame += bytes([checksum & 0xFF])
         client = await self._connectBluetooth()
         await client.write_gatt_char(UUID_CONTROL_CHARACTERISTIC, frame, False)
+
+    def _get_brightness_payload(self, brightness) -> list(int):
+        match self._type:
+            case "H6053":
+                return [round(brightness / 2.55)]
+            case _:
+                return [brightness]
+
+    def _get_color_payload(self, red, green, blue) -> list(int):
+        match self._type:
+            case "H6053":
+                return [0x15, 0x01, red, green, blue, 0, 0, 0, 0, 0, 0xff, 0x0f]
+            case _:
+                return [LedMode.MANUAL, red, green, blue]
