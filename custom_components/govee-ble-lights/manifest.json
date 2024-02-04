@@ -2,7 +2,7 @@
     "domain": "govee_ble_lights",
     "name": "GOVEE Bluetooth Lights",
     "bluetooth": [
-        { "local_name": "ihoment_*", "connectable": false }
+        { "local_name": "GBK_", "connectable": false }
     ],
     "codeowners": [],
     "requirements": ["bleak-retry-connector"],
